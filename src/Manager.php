@@ -253,7 +253,7 @@ class Manager{
             if ($json) {
                 $this->jsonSet($array[$translation->locale][$translation->group], $translation->key, $translation->value);
             } else {
-                array_set($array[$translation->locale][$translation->group], $translation->key, $translation->value);
+				$array[$translation->locale][$translation->group][$translation->key]= $translation->value;
             }
         }
         return $array;
