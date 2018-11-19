@@ -1,5 +1,6 @@
 <?php namespace Barryvdh\TranslationManager;
 
+use Barryvdh\TranslationManager\Event\TranslationsWasPublishedEvent;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Events\Dispatcher;
 use Barryvdh\TranslationManager\Models\Translation;
@@ -220,6 +221,7 @@ class Manager{
             }
 
             Translation::ofTranslatedGroup(self::JSON_GROUP)->update(array('status' => Translation::STATUS_SAVED));
+			event(new TranslationsWasPublishedEvent($group));
         }
     }
 
