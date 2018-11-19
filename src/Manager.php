@@ -205,6 +205,7 @@ class Manager{
                     }
                 }
                 Translation::ofTranslatedGroup($group)->update(array('status' => Translation::STATUS_SAVED));
+				event(new TranslationsWasPublishedEvent($group));
             }
         }
 
@@ -221,7 +222,6 @@ class Manager{
             }
 
             Translation::ofTranslatedGroup(self::JSON_GROUP)->update(array('status' => Translation::STATUS_SAVED));
-			event(new TranslationsWasPublishedEvent($group));
         }
     }
 
