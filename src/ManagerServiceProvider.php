@@ -86,6 +86,7 @@ class ManagerServiceProvider extends ServiceProvider {
             $router->post('/import', 'Controller@postImport');
             $router->post('/find', 'Controller@postFind');
             $router->post('/publish/{groupKey}', 'Controller@postPublish')->where('groupKey', '.*');
+            $router->post('/savejson', 'Controller@postSaveKeyJson');
         });
 	}
 

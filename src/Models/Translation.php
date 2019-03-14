@@ -1,7 +1,8 @@
 <?php namespace Barryvdh\TranslationManager\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use DB;
+use Illuminate\Database\Eloquent\Model;
+use StayForLongWeb\Models\Translations\TranslationsJson;
 
 /**
  * Translation model
@@ -51,5 +52,9 @@ class Translation extends Model{
 
         return $query->select(DB::raw($select));
     }
+
+    public function translationsJson(){
+    	return $this->hasMany(TranslationsJson::class, 'key_php', 'key');
+	}
 
 }

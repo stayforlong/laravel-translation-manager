@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Barryvdh\TranslationManager\Models\Translation;
 use Illuminate\Support\Collection;
+use StayForLongWeb\Models\Translations\TranslationsJson;
 
 class Controller extends BaseController
 {
@@ -32,12 +33,19 @@ class Controller extends BaseController
         $numChanged = Translation::where('group', $group)->where('status', Translation::STATUS_CHANGED)->count();
 
 
-        $allTranslations = Translation::where('group', $group)->orderBy('key', 'asc')->get();
-        $numTranslations = count($allTranslations);
-        $translations = [];
-        foreach($allTranslations as $translation){
-            $translations[$translation->key][$translation->locale] = $translation;
-        }
+		$allTranslations = Translation::query()->where('group', $group)
+			->with(['translationsJson'])
+			->orderBy('key', 'asc')->get();
+
+		$numTranslations = count($allTranslations);
+		$translations    = [];
+		foreach ($allTranslations as $translation) {
+			$translations[$translation->key][$translation->locale] = $translation;
+
+			if ($translation->translationsJson()->count() !== 0) {
+				$translations[$translation->key]['key_json'] = $translation->translationsJson()->first()->key_json;
+			}
+		}
 
          return view('translation-manager::index')
             ->with('translations', $translations)
@@ -135,6 +143,35 @@ class Controller extends BaseController
 
         $this->manager->exportTranslations($group, $json);
 
-        return ['status' => 'ok'];
-    }
+		return ['status' => 'ok'];
+	}
+
+	/**
+	 * @return array
+	 */
+	public function postSaveKeyJson()
+	{
+		$key_json = request()->get('key_json');
+		$key_php  = request()->get('key_php');
+
+		if (empty($key_json) || empty($key_php)) {
+			return ['status' => 'error'];
+		}
+
+		$translationJson = TranslationsJson::query()
+			->where('key_php', '=', $key_php)
+			->orWhere('key_json', '=', $key_json)
+			->first();
+
+		if (null === $translationJson) {
+			$translationJson = new TranslationsJson();
+		}
+
+		$translationJson->key_php  = $key_php;
+		$translationJson->key_json = $key_json;
+
+		$translationJson->save();
+
+		return ['status' => 'ok'];
+	}
 }
